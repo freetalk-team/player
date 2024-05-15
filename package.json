@@ -1,0 +1,32 @@
+{
+  "name": "sipme",
+  "version": "0.9.3",
+  "description": "Web Player",
+  "main": "server.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "web",
+    "javascript"
+  ],
+  "author": "Freetalk Team",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "ejs-loader": "^0.5.0",
+    "ejs-locals": "^1.0.2",
+    "esm": "^3.2.25",
+    "express": "^4.19.2",
+    "express-useragent": "^1.0.15",
+    "module-alias": "^2.2.3"
+  },
+  "_moduleAliases": {
+    "@common": "common"
+  }
+}
