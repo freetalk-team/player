@@ -34,6 +34,9 @@ npm start
 
 [Open in browser](http://127.0.0.1:3010)
 
+## Sceenshots
+
+![details](/public/ui/screenshots/player.jpg)
 
 ## Contributing
 
