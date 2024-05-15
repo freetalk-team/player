@@ -36,7 +36,7 @@ npm start
 
 ## Sceenshots
 
-![details](/public/ui/screenshots/player.jpg)
+![details](/public/ui/screenshot/player.jpg)
 
 ## Contributing
 
