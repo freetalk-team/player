@@ -8,8 +8,8 @@ const prod = process.env.NODE_ENV == 'production';
 const root = app.isPackaged ? path.join('resources', 'app.asar') : '';
 
 var kViewsPath = path.resolve('views');
-var kPublicPath = prod ? path.resolve('public') : path.resolve('..', 'chat', 'public') ;
-var kEntryPoint = '/app.ejs';
+var kPublicPath = path.resolve('public');
+var kEntryPoint = '/app.prod.ejs';
 
 // console.log('NODE Environment:', process.env.NODE_ENV);
 // console.log('ELECTRON Environment:', process.env.ELECTRON_ENV);
