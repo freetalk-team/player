@@ -70,6 +70,13 @@ App.Commands.register('player-import-files', async () => {
 
 });
 
+App.Commands.register('player-play-file', id => app.player.playFile(id));
+App.Commands.register('player-queue-file', id => app.player.playFile(id, true));
+App.Commands.register('player-queue-rm', id => app.player.remove(id));
+
+App.Commands.register('player-toggle-repeat', () => app.player.toggleRepeat());
+App.Commands.register('player-toggle-shuffle', () => app.player.toggleShuffle());
+
 const Fields = AddEditor.Fields;
 
 AddEditor.register('playlist', [

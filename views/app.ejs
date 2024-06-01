@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+	<head>
+		<title>Player</title>
+
+		<base href="./resources" />
+		<link href="/dist/app.min.css" rel="stylesheet">
+
+		<!-- <script type="module" src="/dist/app-base.min.js"></script> -->
+		<script src="/dist/codemirror.js"></script>
+
+		<style>
+			button[name="share"] {
+				display: none;
+			}
+		</style>
+	</head>
+	<body class="column">
+		<div id="titlebar" class="cr ci dark">
+			<div class="cr ci fit" style="-webkit-app-region: drag;-webkit-user-select: none;">
+				<div class="app-icon app-logo"></div>
+				<b class="fit">Player</b>
+				<span class="raleway">ver. 0.9.3</span>
+			</div>
+			<button class="button icon fa fa-question-circle" title="Help" onclick="app.showHelp()"></button>
+			<!-- <button class="button icon fa fa-window-minimize" title="Minimize"></button> -->
+			<button class="button icon fa fa-xmark" title="Close" id="closeApp"></button>
+		</div>
+
+		<!-- The Modal -->
+		<div id="modal-dialog" class="modal">
+
+			<!-- Modal content -->
+			<div class="modal-content">
+				<!-- <span class="close">&times;</span> -->
+				<button class="icon fa fa-xmark close" name="close"></button>
+				<h1><div class="app-logo" style="margin-right: 10px;"></div>Music Player</h1>
+				<p>Web Application for Playing Local Media Files</p>
+				<p>
+					<table>
+						<thead><tr><th align="left"></th><th align="left"></th></tr></thead>
+						<tbody>
+							<tr>
+								<td align="left"><strong>Site</strong></td>
+								<td align="left"><a class="nounderline" href="https://www.sipme.io" target="_blank" title="Go to site">sipme.io</a></td>
+							</tr>
+							<tr>
+								<td align="left"><strong>Contact</strong></td>
+								<td align="left"><a>team.freetalk@gmail.com</a></td>
+							</tr>
+							<tr>
+								<td align="left"><strong>Source code</strong></td>
+								<td align="left"><a class="nounderline" href="https://github.com/freetalk-team/player" target="_blank" title="Go to github">github.com</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</p>
+				<h2>License</h2>
+				<p>Public, free</p>
+				<h2>Version</h2>
+				<p>0.9.3</p>
+				<h2>Author</h2>
+				<p><b>Pavel Patarinski</b><br><a>pavelp.work@gmail.com</a></p>
+			</div>
+		
+		</div>
+
+		<%- include('common/index.html') %> 
+
+		<div id="app-page" class="row">
+
+			<%- include('sidebar/index.html') %>
+			<%- include('editor/index.html') %>
+		</div>
+
+		<script src="/player/electron/renderer.js"></script>
+
+		<script type="module">
+
+			import { AppBase } from '/app/base.js';
+
+			window.App = AppBase;
+
+			// import { PlayerApp } from '/app.js';
+			import { PlayerApp } from '/player/app.js';
+
+			function startApp() {
+					
+				const app = new PlayerApp;
+
+				app.load();
+			}
+
+			startApp();
+		
+		</script>
+
+	</body>
+</html>

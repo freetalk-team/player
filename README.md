@@ -28,15 +28,22 @@ npm install
 
 ## Usage
 
+**Web Player** can be used as standalone Desktop application or can be opened as web page inside browser
+
+* Start as Desktop application
+
 ```
 npm start
 ```
 
+* Start as Web server
+
+```
+npm run server
+```
+
 [Open in browser](http://127.0.0.1:3010)
 
-## Sceenshots
-
-![details](/public/ui/screenshot/player.jpg)
 
 ## Contributing
 

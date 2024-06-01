@@ -93,17 +93,6 @@ export class MusicPage extends EditorBase {
 	}
 
 	// virtual
-	onFilesDrop(media) {
-
-		console.log('Importing media files', media.length);
-
-		
-	}
-
-	onClick(id) {
-		console.log('Playing file:', id);
-		app.player.playFile(id, true);
-	}
 
 	onAction(action, id, container) {
 
@@ -115,17 +104,31 @@ export class MusicPage extends EditorBase {
 		}	
 
 	}
+
+	onInput(e) {
+
+		switch (e.name) {
+			case 'filter':
+			this.filterFields(e.value, 'title', 'desc');
+			break;
+		}
+	}
 	
 	onTrackChange(info) {
 
-		console.log('Player editor on track change:', info);
+		let e;
+
+		console.debug('Player editor on track change:', info);
+
+		if (this.#track)
+			this.clearSelection(this.#track);
 
 		this.state = 'playing';
 
 		this.#updateCurrentTrack();
 		this.#track = info.id;
 
-		const e = this.getElement(info.id);
+		e = this.getElement(info.id);
 		if (!e) return;
 
 		e.classList.add('playing');

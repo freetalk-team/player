@@ -2,7 +2,9 @@
 
 export class EditorBase extends UX.Page {
 
-	get area() { return this.container; }
+	#container;
+
+	get area() { return this.#container; }
 
 	constructor (container, type, template='editor-player-content-base') {
 
@@ -13,6 +15,8 @@ export class EditorBase extends UX.Page {
 			container.appendChild(e);
 
 		super(e);
+
+		this.#container = e.querySelector('[role="main"]');
 	}
 
 	load() {}
@@ -26,7 +30,6 @@ export class EditorBase extends UX.Page {
 
 	onTrackChange() {}
 	onTrackStop() {}
-
 }
 
 Object.assign(EditorBase.prototype, UX.ListMixin)

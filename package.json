@@ -1,15 +1,22 @@
 {
-  "name": "sipme",
+  "name": "Player",
   "version": "0.9.3",
   "description": "Web Player",
-  "main": "server.js",
+  "main": "electron/main.js",
   "directories": {
     "doc": "doc",
     "test": "test"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "electron-forge start",
+    "prod": "NODE_ENV=production electron .",
+    "server": "node server.js",
+    "build": "npx @electron/packager . Player --platform=linux --overwrite --ignore='(node_modules|build|server\\.js|player\\.js|\\.gitignore|README*)' --ignore='public/(?!dist|ui|player)'",
+    "build-app-js": "cd build/app && NODE_ENV=production npx webpack",
+    "compile": "electron-webpack",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "keywords": [
     "web",
@@ -19,14 +26,22 @@
   "license": "ISC",
   "dependencies": {
     "ejs": "^3.1.9",
-    "ejs-loader": "^0.5.0",
-    "ejs-locals": "^1.0.2",
-    "esm": "^3.2.25",
-    "express": "^4.19.2",
-    "express-useragent": "^1.0.15",
-    "module-alias": "^2.2.3"
+    "ejs-electron": "^3.0.0",
+    "electron-settings": "^4.0.4",
+    "electron-squirrel-startup": "^1.0.1"
   },
   "_moduleAliases": {
     "@common": "common"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
+    "@electron/fuses": "^1.8.0",
+    "electron": "^30.0.8"
   }
 }

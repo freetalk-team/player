@@ -20,7 +20,7 @@ export class Sidebar extends App.Editor.Sidebar {
 
 		const recent = this.getPage('recent');
 
-		const opt = { visible: 100, badge: true, hide: true };
+		const opt = { visible: 100, badge: true, hide: true, cmd: 'player-play-file' };
 
 		opt.icon = 'fac-queue';
 		opt.name = 'queue';
@@ -46,24 +46,6 @@ export class Sidebar extends App.Editor.Sidebar {
 
 		switch (action) {
 
-			case 'delete': {
-
-				const group = container.getAttribute('group');
-
-				console.log('Deleting item', id, group);
-
-				switch (group) {
-
-					case 'queue':
-					app.player.remove(parseInt(id));
-					this.#queue.remove(id);
-					break;
-				}
-
-			}
-			break;
-
-
 			case 'clear':
 			app.player.clear();
 			this.#recent.clear();
@@ -72,17 +54,24 @@ export class Sidebar extends App.Editor.Sidebar {
 
 	}
 
-	onClick(id, e, target) {
-		console.debug('PLAYER sidebar onclick');
-	}
-
 	async #onTrackQueued(id) {
-		const info = await app.db.get('audio', id);
 
-		if (!info.title) 
-			info.title = fileX.getTitleFromMeta(info);
+		const tracks = Array.isArray(id) ? id : [id];
 
-		this.#queue.add(info);
+		let info;
+
+		for (const i of tracks) {
+
+			info = i;
+
+			if (typeof info != 'object')
+				info = await app.db.get('audio', id);
+
+			info.title = info.title || fileX.getTitle(info);
+
+			this.#queue.add(info);
+
+		}
 	}
 
 	#onTrackChange(info) {
@@ -91,14 +80,22 @@ export class Sidebar extends App.Editor.Sidebar {
 		this.#queue.delete(id);
 
 		if (id != this.#current) {
-			if (!info.title)
-				info.title = fileX.getTitleFromMeta(info);
 
-			const meta = info.meta;
-			if (!info.album && meta.album)
-				info.album = meta.year ? `${meta.album} - ${meta.year}` : meta.album;
+			const e = this.#recent.getElement(id);
+			if (e)  {
+				dom.moveTop(e);
+			}
+			else {
 
-			this.#recent.add(info, true);
+				if (!info.title)
+					info.title = fileX.getTitleFromMeta(info);
+
+				const meta = info.meta;
+				if (!info.album && meta.album)
+					info.album = meta.year ? `${meta.album} - ${meta.year}` : meta.album;
+
+				this.#recent.add(info, true);
+			}
 		}
 
 		this.#current = id;

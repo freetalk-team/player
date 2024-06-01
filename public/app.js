@@ -55,6 +55,11 @@ export class PlayerApp extends App {
 		this.addDS(new App.DataSource.Database('radio'));
 	}
 
+	showHelp() {
+		const e = document.getElementById('modal-dialog');
+
+		e.style.display = "block";
+	}
 
 	async add(type, info, action='import') {
 

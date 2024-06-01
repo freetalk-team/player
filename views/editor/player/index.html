@@ -5,6 +5,10 @@
 	<h2 class="title text-stroke ellipsis nomargin">Player</h2>
 	<i class="ns smaller ellipsis">Play files</i>
 	<div class="right cr ci xxl">
+		<button class="icon fa fa-shuffle sm w3-round-large" name="shuffle" title="Shuffle on" state="{{app.player.shuffle?'on':'off'}}" cmd="player-toggle-shuffle">
+		<button class="icon fa repeat sm w3-round-large" name="repeat" title="Repeat on" state="{{app.player.repeat?'on':'off'}}" cmd="player-toggle-repeat">
+			<!-- <i class="fa fa-circle w3-text-green"></i> -->
+		</button>
 		<button class="icon fa fa-play fa-fw" name="play" title="Play"></button>
 		<button class="icon fa sm fa-fast-backward" name="prev" title="Previous"></button>
 		<button class="icon fa sm fa-fast-forward" name="next" title="Next"></button>
@@ -12,11 +16,11 @@
 	<div class="toolbar cr">
 		<button name="share" class="icon fa sm" title="Share"></button>
 		<button name="remove" class="icon fa" title="Remove"></button>
-		<button name="import" class="icon fa folder sm" title="Import" cmd="player-import-files"></button>
+		<button name="import" class="icon fa folder sm relative" title="Import" cmd="player-import-files"><i class="fa plus"></i></button>
 	</div>
 	<div class="progress cr ci">
 		<input class="fit slider" type="range" min="1" max="100" value="0" disabled>
-		<time class="smaller italic bold wm6 raleway">0:00</time>
+		<time class="smaller italic bold wm6 raleway" style="min-width:40px">0:00</time>
 	</div>
 </template>
 
@@ -46,10 +50,11 @@
 	@endforeach
 </template>
 
-
-
 <template id="editor-player-content-base" classes="column hidden">
-
+	<div class="show-container-empty">
+		<h2 class="wm2 italic text-center">Drag and drop media files</h2>
+	</div>
+	<div class="container-empty column" role="main" cmd="player-queue-file" group></div>
 </template>
 
 <template id="editor-player-content-torrent" classes="column hidden fa-color-icons">
@@ -63,10 +68,10 @@
 	<div class="title cr ci ellipsis">
 		<i class="fa stroke {{this.type||'audio'}} beat"></i>
 		<span class="fit marquee-container ellipsis">
-			<h4 class="ellipsis nomargin marquee">{{this.title||fileX.getTitleFromMeta(this)}}</h4>
+			<h4 class="ellipsis nomargin marquee" role="title">{{fileX.getTitle(this)}}</h4>
 		</span>
 	</div>
-	<i class="desc ellipsis smaller">{{this.desc||fileX.getDescriptionFromMeta(this)}}</i>
+	<i class="desc ellipsis smaller" role="desc">{{this.desc||fileX.getDescriptionFromMeta(this)}}</i>
 	<button class="icon fa sm fa-fw fa-minus display-hover actions" name="delete" title="Remove"></button>
 	<span class="time small bold watermark-8">{{this.duration ? fileX.getDuration(this.duration) : ''}}</span>
 	<div class="star-ratings" data-rating="{{fileX.getRating(this)}}"></div>
@@ -181,7 +186,7 @@
 <template id="editor-player-sidebar-queue-item" classes="cr m5 w3-padding-small padding-hor-4 noevents ci">
 	<i class="fa smaller {{this.type}}"></i>
 	<span class="title fit ellipsis">{{this.title}}</span>
-	<button class="icon fa sm display-hover" name="delete" title="Remove"></button>
+	<button class="icon fa sm display-hover" name="delete" title="Remove" cmd="player-queue-rm"></button>
 </template>
 
 <template id="editor-player-sidebar-playlist-file" class="cr m5 ci w3-padding-small noevents si" data-id="{{this.id||this.name.hashCode()}}">

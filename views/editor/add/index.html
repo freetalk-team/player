@@ -1,4 +1,5 @@
 <div id="add-editor" class="hidden container edit add-editor">
+
 	<div class="header column">
 		<div class="row fit">
 			<i class="fa fa-fw icon circle stroke fa-dot-circle" role="icon"></i>
@@ -21,34 +22,37 @@
 		</div>
 	</div>
 
+	<ux>
+		<template id="editor-add-code" classes="container-row fade hidden max-height" style="height:100%;">
+			<textarea class="fit" name="code"></textarea>
+		</template>
+	
+		<template id="editor-add-test" classes="container-col w3-container w3-padding fade">
+			<button class="smaller bold w3-padding-small" name="send" title="Test code">Send</button>
+			<div class="results w3-card-4 container-col noverflow"></div>
+		</template>
+	
+		<template id="editor-add-scrap-result" classes="column">
+			<h3 class="nomargin ellipsis">{{this.title}}</h3>
+			<div class="container-row fit center-items">
+				<a target="_blank" href="{{this.data.thumb}}">thumb</a>
+				<a target="_blank" href="{{this.data.link}}">link</a>
+				<button class="icon fa fa-arrow-alt-circle-down display-hover w3-text-blue right" name="scrap" style="margin-left: auto;" title="Scrap"></button>
+			</div>
+		</template> 
+	
+		<template id="editor-add-weather-result" classes="column">
+			<h3 class="nomargin ellipsis">{{this.name}}</h3>
+			<div class="column smaller fit list2">
+				@foreach{{Object.entries(this)}}
+					<span class="container-row item">
+						<b class="fit">{{this[0]}}</b>
+						<i>{{this[1]}}</i>
+					</span>
+				@endforeach
+			</div>
+		</template> 
+	</ux>
+
 </div>
 
-<template id="editor-add-code" classes="container-row fade hidden max-height" style="height:100%;">
-	<textarea class="fit" name="code"></textarea>
-</template>
-
-<template id="editor-add-test" classes="container-col w3-container w3-padding fade">
-	<button class="smaller bold w3-padding-small" name="send" title="Test code">Send</button>
-	<div class="results w3-card-4 container-col noverflow"></div>
-</template>
-
-<template id="editor-add-scrap-result" classes="column">
-	<h3 class="nomargin ellipsis">{{this.title}}</h3>
-	<div class="container-row fit center-items">
-		<a target="_blank" href="{{this.data.thumb}}">thumb</a>
-		<a target="_blank" href="{{this.data.link}}">link</a>
-		<button class="icon fa fa-arrow-alt-circle-down display-hover w3-text-blue right" name="scrap" style="margin-left: auto;" title="Scrap"></button>
-	</div>
-</template> 
-
-<template id="editor-add-weather-result" classes="column">
-	<h3 class="nomargin ellipsis">{{this.name}}</h3>
-	<div class="column smaller fit list2">
-		@foreach{{Object.entries(this)}}
-			<span class="container-row item">
-				<b class="fit">{{this[0]}}</b>
-				<i>{{this[1]}}</i>
-			</span>
-		@endforeach
-	</div>
-</template> 

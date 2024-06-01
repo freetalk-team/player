@@ -5,7 +5,7 @@ import { MusicPage } from './music.js';
 import { RadioPage } from './radio.js';
 
 const kActions = {
-	  files: { title: 'Local files', desc: 'Play and share with friends your media files' }
+	  files: { title: 'Media files', desc: 'Play and share with friends your media files' }
 	, youtube: { title: 'Youtube', desc: 'Play and share with friends your favorite videos' }
 	, torrent: { title: 'Torrents',  desc: 'Play and share with friends your media files' }
 	, radio: { title: 'Radio', desc: 'Listen online radio' }
@@ -37,6 +37,7 @@ export class PlayerPage extends App.Editor.Page {
 	#state;
 	#progress;
 	#info;
+	#action;
 
 	get sidebar() { return this.#sidebar; }
 
@@ -82,12 +83,11 @@ export class PlayerPage extends App.Editor.Page {
 		const icon = header.icon;
 		const progress = header.q('.progress');
 
-		this.#progress = new TrackProgress(progress);
+		app.player.wrapProgress(new TrackProgress(progress));
 
 		app.on('trackchange', e => this.#onTrackChange(e.detail));
 		app.on('trackstop', e => this.#onTrackStop(e.detail));
 		app.on('trackpause', e => this.#onTrackPause(e.detail));
-		app.on('trackprogress', e => this.#onTrackProgress(e.detail));
 
 		app.on('filesdropped', e=> this.#onFilesDropped(e.detail));
 
@@ -133,6 +133,8 @@ export class PlayerPage extends App.Editor.Page {
 
 		const icon = header.icon;
 		const a = kActions[action];
+
+		this.#action = a;
 
 		switch (action) {
 
@@ -289,7 +291,8 @@ export class PlayerPage extends App.Editor.Page {
 
 
 	onTabChange(...args) {
-		if (this.active) this.active.onTabChange(...args);
+		if (this.active) 
+			this.active.onTabChange(...args);
 	}
 
 	async onScrollY(y, total) {
@@ -368,11 +371,11 @@ export class PlayerPage extends App.Editor.Page {
 
 	#onTrackChange(info) {
 
-		this.#progress.resume();
-
 		const e = this.active.onTrackChange(info);
 		if (e) 
 			app.editor.scrollTo(e);
+
+		this.header.desc = fileX.getTitle(info);
 
 		this.state = 'playing';
 	}
@@ -380,6 +383,9 @@ export class PlayerPage extends App.Editor.Page {
 
 	#onTrackStop() {
 		console.log('Editor Player: track stop');
+
+		if (this.#action)
+			this.header.desc = this.#action.desc;
 
 		this.state = 'paused';
 		this.active.onTrackStop();
@@ -389,6 +395,13 @@ export class PlayerPage extends App.Editor.Page {
 		console.log('Editor Player: track pause');
 
 		this.state = 'paused';
+
+		// if (this.#track) {
+		// 	const e =  this.#content.getElement(this.#track);
+		// 	e.classList.remove('playing');
+		// }
+
+		// this.#track = null;
 	}
 
 	#onTrackProgress({ sec, total }) {
@@ -402,8 +415,73 @@ export class PlayerPage extends App.Editor.Page {
 
 	#handleInput(container) {
 
+
+		const input = container.querySelector('input[name="filter"]');
+
+		// input.onkeydown = e => {
+
+		// 	const value = input.value;
+
+		// 	if (value.length > 0 && e.key == 'Enter') {
+
+		// 		e.preventDefault();
+
+		// 		// search.disabled = true;
+		// 		this.#current.search(value);
+		// 	}
+		// }
+
+		// input.oninput = () => search.disabled = input.value.trim().length < 3;
+
+		// const search = container.querySelector('button[name="search"]');
+		// search.onclick = () => {
+		// 	const value = input.value;
+		// 	this.#current.search(value);
+		// }
 	}
-	
+
+	#handleTestInput(container) {
+		const magnet = container.querySelector('input[name="magnet"]');
+		const download = container.querySelector('button[name="download"]');
+		const stop = container.querySelector('button[name="stop"]');
+
+		let uri;
+
+		stop.onclick = () => {
+
+			if (uri)
+				app.cancelTorrent(uri);
+
+			magnet.disabled = false;
+			download.disabled = false;
+		}
+
+		download.onclick = async () => {
+
+			uri = magnet.value;
+			if (uri == '') {
+				console.log('Cannot download empty torrent');
+				return;
+			}
+
+			magnet.disabled = true;
+			download.disabled = true;
+			console.log('Downloading magnet:', uri);
+
+			const data = await app.firebase.get('torrent', uri);
+
+			app.downloadTorrent(data.uri, {
+				progress() {
+					
+				},
+
+				done() {
+					magnet.disabled = false;
+					download.disabled = false;
+				}
+			});
+		}
+	}
 }
 
 class TrackProgress {
@@ -415,6 +493,8 @@ class TrackProgress {
 
 		this.#slider = container.querySelector('input[type="range"]');
 		this.#time = container.querySelector('time');
+
+		this.#slider.oninput = e => app.player.seek(e.target.value); 
 	}
 
 	update(sec, total) {

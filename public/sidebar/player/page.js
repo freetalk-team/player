@@ -70,9 +70,9 @@ class PlayerPage extends App.Sidebar.Page {
 	#loadMainItems() {
 
 		const kItems = [
-			{ display: 'Local files', id: 'files', icon: 'folder', cmd: 'open-files-player' },
+			{ display: 'Local files', id: 'files', icon: 'folder sm', cmd: 'open-files-player' },
 			// { display: 'Youtube', id: 'youtube', icon: 'fa-youtube' },
-			{ display: 'Torrents', id: 'torrent', icon: 'torrent', cmd: 'open-torrent-player' }
+			// { display: 'Torrents', id: 'torrent', icon: 'torrent', cmd: 'open-torrent-player' }
 		];
 
 		for (const i of kItems) 

@@ -22,6 +22,7 @@ export class Database extends App.Database {
 
 			Database.addIndex(kAudio, 'rating', txn);
 			Database.addIndex(kAudio, 'type', txn);
+			Database.addIndex(kAudio, 'ts', txn);
 
 			Database.addIndex(kPlaylist, 'type', txn);
 
