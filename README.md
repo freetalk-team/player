@@ -44,6 +44,7 @@ npm run server
 
 [Open in browser](http://127.0.0.1:3010)
 
+![details](/public/ui/screenshot/player.jpg)
 
 ## Contributing
 
