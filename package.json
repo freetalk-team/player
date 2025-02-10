@@ -1,6 +1,6 @@
 {
   "name": "Player",
-  "version": "0.9.3",
+  "version": "1.0.1",
   "description": "Web Player",
   "main": "electron/main.js",
   "directories": {
@@ -12,8 +12,9 @@
     "start": "electron-forge start",
     "prod": "NODE_ENV=production electron .",
     "server": "node server.js",
-    "build": "npx @electron/packager . Player --platform=linux --overwrite --ignore='(node_modules|build|server\\.js|player\\.js|\\.gitignore|README*)' --ignore='public/(?!dist|ui|player)'",
-    "build-app-js": "cd build/app && NODE_ENV=production npx webpack",
+    "build-js": "webpack",
+    "build-css": "webpack -c webpack.css.config.js",
+    "build": "npm run build-js && npm run build-css",
     "compile": "electron-webpack",
     "package": "electron-forge package",
     "make": "electron-forge make"
@@ -29,7 +30,6 @@
     "ejs-electron": "^3.0.0",
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",
-    "esm": "^3.2.25",
     "mime": "^4.0.3"
   },
   "_moduleAliases": {

@@ -47,7 +47,7 @@
 	@endif
 </template>
 
-<template id="list-group-content" classes="content fade column {{len(_0)>this.visible?'more':''}} {{this.content||''}}" visible="{{this.visible||-1}}" template="{{this.item}}" cmd="{{this.cmd}}" _a-group="{{this.name}}">
+<template id="list-group-content" classes="content fade column {{len(_0)>this.visible?'more':''}} {{this.content||''}}" visible="{{this.visible||-1}}" template="{{this.item}}" cmd="{{this.cmd}}" group="{{this.name}}">
 @foreach{{_0}}[visible,item]
 	@if{{le(_0, _1)}}
 		[[_2]]{{this}}

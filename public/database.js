@@ -7,6 +7,7 @@ const kAudio = 'audio'
 
 export class Database extends App.Database {
 
+	get name() { return 'player'; }
 	get version() { return 1; }
 
 	onUpgrade(db, txn, ver) {

@@ -1,11 +1,9 @@
 
 import { Sidebar } from './sidebar.js';
-
 import { MusicPage } from './music.js';
-import { RadioPage } from './radio.js';
 
 const kActions = {
-	  files: { title: 'Media files', desc: 'Play and share with friends your media files' }
+	  files: { title: 'Media', desc: 'Play and share with friends your media files' }
 	, youtube: { title: 'Youtube', desc: 'Play and share with friends your favorite videos' }
 	, torrent: { title: 'Torrents',  desc: 'Play and share with friends your media files' }
 	, radio: { title: 'Radio', desc: 'Listen online radio' }
@@ -30,12 +28,8 @@ export class PlayerPage extends App.Editor.Page {
 
 	#sidebar;
 
-	#panel = [];
-
-	#offset = 0;
 	#loading;
 	#state;
-	#progress;
 	#info;
 	#action;
 
@@ -74,13 +68,9 @@ export class PlayerPage extends App.Editor.Page {
 
 		super(container);
 
-
-		console.log('Creating player editor ....');
-
 		this.#createSidebar();
 
 		const header = this.header;
-		const icon = header.icon;
 		const progress = header.q('.progress');
 
 		app.player.wrapProgress(new TrackProgress(progress));
@@ -90,18 +80,12 @@ export class PlayerPage extends App.Editor.Page {
 		app.on('trackpause', e => this.#onTrackPause(e.detail));
 
 		app.on('filesdropped', e=> this.#onFilesDropped(e.detail));
-
-
-		// for testing
-		const ed = this.editorElement;
-
-		this.#handleInput(ed);
-		
-		this.#panel.push(header.button('play'));
-		this.#panel.push(header.button('prev'));
-		this.#panel.push(header.button('next'));
+		app.on('playlistadd', e => this.open('playlist', e.detail));
 
 		this.state = app.player.isPlaying ? 'playing' : 'paused';
+
+		const settings = app.player.settings;
+		this.#applySettings(settings);
 
 		// if (app.sudo)
 		// 	this.#handleTestInput(ed);
@@ -161,7 +145,11 @@ export class PlayerPage extends App.Editor.Page {
 
 				// id = parseInt(id || action);
 				id = id || action;
-				let info = await ds.get(id);
+
+				let info = id;
+				
+				if (typeof info != 'object')
+					info = await ds.get(id);
 
 				// hack: remove at some point
 				// if (!info) 
@@ -179,39 +167,8 @@ export class PlayerPage extends App.Editor.Page {
 		}
 	}
 
-	onAction(name, e, btn) {
-
-		switch (name) {
-			case 'next':
-			app.player.playNext();
-			break;
-
-			case 'prev':
-			app.player.playPrev();
-			break;
-
-			case 'play': {
-				// const state = btn.getAttribute('state');
-				// console.debug('Player play pressed', state);
-
-				if (this.#state == 'paused') {
-					app.player.resume();
-				}
-				else {
-					app.player.pause();
-				}
-			}
-			break;
-
-			case 'share': 
-			app.share('playlist', this.#info);
-			break;
-		}
-	}
-
-
 	onFileDrop(files, meta, directory) {
-		console.log('Player editor on file drop:', files.length);
+		// console.debug('Player editor on file drop:', files.length);
 
 		const images = [];
 		const media = [];
@@ -229,7 +186,7 @@ export class PlayerPage extends App.Editor.Page {
 		if (media.length) {
 			this.active.onFilesDrop(media, images, other);
 
-			const playlist = [];
+			const tracks = [];
 			const albums = [];
 
 			let title, id;
@@ -249,46 +206,30 @@ export class PlayerPage extends App.Editor.Page {
 				}
 
 
-				playlist.push({ id, title, file: i });
+				tracks.push({ id, title, file: i });
 			}
+
+			let info = { album: directory, type: 'playlist' };
 
 			if (media.length > 2) {
 
-				let album = directory;
-
 				if (media.length == albums.length && albums.unique().length == 1) {
 					// add it
-					album = albums[0];
-
-					const playlist = {
-						name: album,
-						id: album.hashCode().toString(),
-						type: 'album',
-						tracks: media.map(i => ({
-							id: i.id || i.name.hashCode(),
-							filename: i.name,
-							size: i.size,
-							title: i.meta && i.meta.title ? i.meta.title : i.name
-
-						}))
-					};
+					info.album = albums[0];
+					info.type = 'album';
 
 					if (images.length > 0) {
 						images.sort((a, b) => a.size - b.size);
-						playlist.cover = images[0];
+						info.cover = images[0];
 					}
+				}
 
-					app.add('playlist', playlist, 'new');
-				}
-				else {
-					// prompt
-					app.executeCommand('add-new-playlist', playlist, album);
-				}
+				// prompt
+				app.executeCommand('add-new-playlist', tracks, info);
 
 			}
 		}
 	}
-
 
 	onTabChange(...args) {
 		if (this.active) 
@@ -326,7 +267,7 @@ export class PlayerPage extends App.Editor.Page {
 
 	async #open(action, ...args) {
 
-		console.log('Player OPEN:', action);
+		//console.log('Player OPEN:', action);
 
 		this.switchTo(action);
 
@@ -344,12 +285,6 @@ export class PlayerPage extends App.Editor.Page {
 		return this.active.open(...args);
 	}
 
-	#openRadio(id) {
-		console.debug('Openning radio:', id);
-
-		// app.player.openRadio(id);
-	}
-
 	#addPage(type) {
 
 		const PageClass = PlayerPage.#pages[type];
@@ -359,14 +294,12 @@ export class PlayerPage extends App.Editor.Page {
 
 		return p;
 	}
-	
 
 	#createSidebar() {
 		const e = this.sidebarElement;
 
 		const sidebar = new Sidebar(e);
 		this.#sidebar = sidebar;
-
 	}
 
 	#onTrackChange(info) {
@@ -380,9 +313,8 @@ export class PlayerPage extends App.Editor.Page {
 		this.state = 'playing';
 	}
 
-
 	#onTrackStop() {
-		console.log('Editor Player: track stop');
+		// console.log('Editor Player: track stop');
 
 		if (this.#action)
 			this.header.desc = this.#action.desc;
@@ -392,97 +324,44 @@ export class PlayerPage extends App.Editor.Page {
 	}
 
 	#onTrackPause() {
-		console.log('Editor Player: track pause');
-
 		this.state = 'paused';
-
-		// if (this.#track) {
-		// 	const e =  this.#content.getElement(this.#track);
-		// 	e.classList.remove('playing');
-		// }
-
-		// this.#track = null;
-	}
-
-	#onTrackProgress({ sec, total }) {
-		this.#progress.update(sec, total);
 	}
 
 	#onFilesDropped(files) {
-
-		console.log('Player on files dropped');
+		// console.log('Player on files dropped');
 	}
 
 	#handleInput(container) {
 
-
-		const input = container.querySelector('input[name="filter"]');
-
-		// input.onkeydown = e => {
-
-		// 	const value = input.value;
-
-		// 	if (value.length > 0 && e.key == 'Enter') {
-
-		// 		e.preventDefault();
-
-		// 		// search.disabled = true;
-		// 		this.#current.search(value);
-		// 	}
-		// }
-
-		// input.oninput = () => search.disabled = input.value.trim().length < 3;
-
-		// const search = container.querySelector('button[name="search"]');
-		// search.onclick = () => {
-		// 	const value = input.value;
-		// 	this.#current.search(value);
-		// }
 	}
 
-	#handleTestInput(container) {
-		const magnet = container.querySelector('input[name="magnet"]');
-		const download = container.querySelector('button[name="download"]');
-		const stop = container.querySelector('button[name="stop"]');
+	#applySettings(settings) {
 
-		let uri;
+		const header = this.headerElement;
+		let e;
 
-		stop.onclick = () => {
+		for (const [name, value] of Object.entries(settings)) {
 
-			if (uri)
-				app.cancelTorrent(uri);
+			e = header.querySelector(`input[name="${name}"]`);
+		
+			if (!e) continue;
 
-			magnet.disabled = false;
-			download.disabled = false;
-		}
-
-		download.onclick = async () => {
-
-			uri = magnet.value;
-			if (uri == '') {
-				console.log('Cannot download empty torrent');
-				return;
+			if (e.type == 'checkbox') {
+				e.checked = value;
+				if (value) 
+					dom.toggleTitle(e);
 			}
-
-			magnet.disabled = true;
-			download.disabled = true;
-			console.log('Downloading magnet:', uri);
-
-			const data = await app.firebase.get('torrent', uri);
-
-			app.downloadTorrent(data.uri, {
-				progress() {
-					
-				},
-
-				done() {
-					magnet.disabled = false;
-					download.disabled = false;
-				}
-			});
+			else {
+				e.value = value;
+				e.dispatchEvent(new Event('change', { 'bubbles': true }));
+			}
 		}
+
 	}
 }
+
+PlayerPage.register(MusicPage);
+// PlayerPage.register(RadioPage);
 
 class TrackProgress {
 
@@ -498,6 +377,8 @@ class TrackProgress {
 	}
 
 	update(sec, total) {
+
+		total = total || 1;
 		//console.debug('On track progress:', sec, total);
 		this.#slider.value = Math.round(sec/total * 100);
 
@@ -525,6 +406,3 @@ class TrackProgress {
 		dom.hideElement(this.#time);
 	}
 }
-
-PlayerPage.register(MusicPage);
-PlayerPage.register(RadioPage);

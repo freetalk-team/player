@@ -3,29 +3,23 @@ class PlayerPage extends App.Sidebar.Page {
 
 	static id = 'player';
 
-	#album;
-	#playlist;
+	#groups = {};
 
 	get icon() { return '\uf001'; } // fa-music
 
 	constructor(id='sidebar-player') {
 		super(PlayerPage.id, id);
 
-		app.on('playlistadd', e => this.#addPlaylist(e.detail, true));
+		app.on('playlistadd', e => this.#addPlaylist(e.detail, true, true));
 		app.on('playlistrm', e => this.#removePlaylist(e.detail));
 	}
 
-	load(settings) {
-		return this.#reload();
-	}
-
-	async #reload() {
+	async load(settings) {
+		
 		//console.log('SB: load contacts');
 
 		this.#loadMainItems();
 		this.#loadRadioChannels();
-
-		let g;
 
 		const opt = {
 			visible: 100,
@@ -36,19 +30,18 @@ class PlayerPage extends App.Sidebar.Page {
 			item: 'sidebar-player-item-playlist',
 		}; 
 
-		// album
-		opt.name = 'album';
-		opt.icon = 'fa-compact-disc w3-text-purple';
+		const groups = [
+			{ name: 'album', icon: 'fa-compact-disc w3-text-purple' },
+			{ name: 'playlist', icon: 'playlist w3-text-deep-orange' },
+			{ name: 'series', icon: 'video w3-text-blue' }
+		]
 
-		g = this.addGroup(opt);
-		this.#album = g;
-		
-		// playlist
-		opt.name = 'playlist';
-		opt.icon = 'playlist w3-text-deep-orange';
+		let o;
 
-		g = this.addGroup(opt);
-		this.#playlist = g;
+		for (const i of groups) {
+			o = Object.assign({}, opt, i);
+			this.#groups[i.name] = this.addGroup(o);
+		}
 
 		const ds = app.ds('playlist');
 		const playlists = await ds.ls();
@@ -56,21 +49,12 @@ class PlayerPage extends App.Sidebar.Page {
 		for (const i of playlists)
 			this.#addPlaylist(i);
 	}
-
 	
-	add(action, info) {
-
-		console.log('Sidebar (contact): adding', action, info);
-				
-		switch (action) {
-			
-		}
-	}
 
 	#loadMainItems() {
 
 		const kItems = [
-			{ display: 'Local files', id: 'files', icon: 'folder sm', cmd: 'open-files-player' },
+			{ display: 'Media', id: 'files', icon: 'folder sm', cmd: 'open-files-player' },
 			// { display: 'Youtube', id: 'youtube', icon: 'fa-youtube' },
 			// { display: 'Torrents', id: 'torrent', icon: 'torrent', cmd: 'open-torrent-player' }
 		];
@@ -107,18 +91,21 @@ class PlayerPage extends App.Sidebar.Page {
 			g.add(i);
 	}
 
-	#addPlaylist(data, check=false) {
+	#addPlaylist(data, check=false, select=false) {
 
-		const g = data.type == 'album' ? this.#album : this.#playlist;
+		const g = this.#groups[data.type || 'playlist'];
 
 		if (check && g.getElement(data.id))
 			return;
 
 		g.add(data);
+
+		if (select)
+			this.selectItem(data.id);
 	}
 
 	#removePlaylist(id) {
-		this.#playlist.delete(id);
+		this.delete(id);
 	}
 
 	static defaultSettings() {

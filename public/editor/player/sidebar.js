@@ -19,36 +19,29 @@ export class Sidebar extends App.Editor.Sidebar {
 		this.loadTabs();
 
 		const recent = this.getPage('recent');
+		const e = dom.renderTemplate('editor-player-sidebar');
 
-		const opt = { visible: 100, badge: true, hide: true, cmd: 'player-play-file' };
+		recent.appendChild(e);
 
-		opt.icon = 'fac-queue';
-		opt.name = 'queue';
-		opt.item = 'editor-player-sidebar-queue-item';
-		opt.actions = [{ name: 'clear' }];
+		const list = UX.List.createMixin(e);
 
-		this.#queue = recent.addGroup(opt);
+		this.#queue = list.wrapGroup('queue');
+		this.#recent = list.wrapGroup('recent');
 
-		opt.icon = 'fac-play-recent';
-		opt.name = 'recent';
-		opt.item = 'editor-player-sidebar-playlist-file';
-		opt.actions = [{ name: 'add', cmd: 'add-new-playlist' }, { name: 'clear' }];
-
-		this.#recent = recent.addGroup(opt);
+		this.#loadRecent();
 
 		app.on('trackqueued', e => this.#onTrackQueued(e.detail));
 		app.on('trackchange', e => this.#onTrackChange(e.detail));
 	}
 
-	handleAction(action, container, target) {
+	handleAction(action, container) {
 
-		console.debug('Sidebar player on action:', action);
+		// console.debug('Sidebar player on action:', action);
 
 		switch (action) {
 
 			case 'clear':
-			app.player.clear();
-			this.#recent.clear();
+			dom.removeChilds(dom.next(container));
 			break;
 		}
 
@@ -99,6 +92,16 @@ export class Sidebar extends App.Editor.Sidebar {
 		}
 
 		this.#current = id;
+	}
+
+	#loadRecent() {
+
+		const recent = app.player.recent;
+
+		// console.debug('Player siebar loading recent files:', recent);
+
+		for (const i of recent)
+			this.#recent.add(i);
 	}
 } 
 

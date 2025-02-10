@@ -2,23 +2,25 @@
 import { CommandMixin } from './app/command.js';
 import { RecentMixin } from './app/recent.js';
 
-
 import { Database } from './database.js';
+import { Player } from './player.js';
 
 import './editor/player/index.js';
 
 import PlayerPage from './sidebar/player/page.js';
 
+import './utils.js';
 
+export default class PlayerApp extends App {
 
-export class PlayerApp extends App {
-
-
+	get ed() { return super.editor; }	
 
 	constructor() {
 		const container = document.getElementById('app-page');
 
 		super(container);
+
+		this.player = new Player;
 	}
 
 	createDatabase() {
@@ -37,21 +39,21 @@ export class PlayerApp extends App {
 	}
 
 	async load() {
-		console.log('APP: on load');
-
-		
+		// console.log('APP: on load');
 
 		this.initDataSource();
 		this.startLifecycle();
 
 		await super.load();
+		await this.player.load();
 
 		this.sidebar.open('player', 'files');
 		this.openEditor('player', 'files');
 	}
 
 	initDataSource() {
-		this.addDS(new App.DataSource.Database('playlist'));
+		this.addDS(new DataSource('audio'));
+		this.addDS(new DataSource('playlist'));
 		this.addDS(new App.DataSource.Database('radio'));
 	}
 
@@ -127,7 +129,6 @@ export class PlayerApp extends App {
 
 		return info.id;
 	}
-
 }
 
 Object.assign(App.prototype
@@ -136,3 +137,21 @@ Object.assign(App.prototype
 );
 
 App.Sidebar.register(PlayerPage);
+
+
+
+class DataSource extends App.DataSource.Database {
+	constructor(id) {
+		super(id);
+	}
+
+	async put(info) {
+		await super.put(info);
+		app.emit(this.name + 'add', info);
+	}
+
+	async rm(info) {
+		await super.rm(info);
+		app.emit(this.name + 'rm', info);
+	}
+}

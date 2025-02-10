@@ -9,16 +9,23 @@ export class MusicPage extends EditorBase {
 	#total = 0;
 	#track;
 	#more = false;
+	#select = false;
+	#playlist;
 
 	get more() { return this.#more; }
-
+	
 	constructor(container) { 
 		super(container, MusicPage.id); 
+
+		this.#toggleSelect(false);
 
 		app.on('audioadd', e => this.#onAudioImport(e.detail));
 	}
 
 	open(playlist) {
+
+		this.#playlist = playlist;
+		// this.#toggleSelect(false);
 
 		const ed = this.container;
 
@@ -90,6 +97,13 @@ export class MusicPage extends EditorBase {
 			e.dataset.playlist = true;
 		}
 
+		this.sort((a, b) => {
+			if (a.dataset.playlist && !b.dataset.playlist) return -1;
+			if (b.dataset.playlist && !a.dataset.playlist) return 1;
+
+			return 0;
+		});
+
 	}
 
 	// virtual
@@ -97,12 +111,37 @@ export class MusicPage extends EditorBase {
 	onAction(action, id, container) {
 
 		switch (action) {
+			case 'new': {
 
-			case 'delete':
-			dom.removeElement(container);
-			return app.db.rm('audio', parseInt(id));
+				const tracks = this.getSelected(true).map(i => i.dataset.id);
+				if (tracks.length > 0)
+					app.executeCommand('add-new-playlist', tracks);
+			}
+			break;
 		}	
 
+	}
+
+	async onClick(id, item, selected) {
+		if (!this.#select) {
+			app.player.playFile(id);
+			return;
+		}
+
+		if (this.#playlist) {
+			const playlist = !!item.dataset.playlist;
+
+
+			// todo: move element
+			if (playlist) {
+				delete item.dataset.playlist;
+				await app.player.removeFromPlaylist(this.#playlist.id, id);
+			}
+			else {
+				item.dataset.playlist = true;
+				await app.player.addToPlaylist(this.#playlist.id, id);
+			}
+		}
 	}
 
 	onInput(e) {
@@ -110,6 +149,10 @@ export class MusicPage extends EditorBase {
 		switch (e.name) {
 			case 'filter':
 			this.filterFields(e.value, 'title', 'desc');
+			break;
+
+			case 'select':
+			this.#toggleSelect();
 			break;
 		}
 	}
@@ -166,9 +209,9 @@ export class MusicPage extends EditorBase {
 
 		e.classList.remove('playing');
 
-		const video = e.querySelector('video');
-		if (video)
-			dom.removeElement(video);
+		// const video = e.querySelector('video');
+		// if (video)
+		// 	dom.removeElement(video);
 	}
 
 	#renderItem(i, top=false) {
@@ -196,6 +239,15 @@ export class MusicPage extends EditorBase {
 	#onAudioImport(media) {
 		for (const i of media)
 			this.#renderItem(i, true);
+	}
+
+	#toggleSelect(select=!this.#select) {
+		this.#select = select;
+		this.#setMode(this.#select ? 'select' : 'play');
+	}
+
+	#setMode(mode) {
+		this.container.setAttribute('mode', mode);
 	}
 } 
 

@@ -19,7 +19,7 @@ var app = express();
 app.set('views', __dirname + '/views');
 // app.set('views', [__dirname + '/views', __dirname + '/public']);
 app.set('view engine', 'ejs');
-app.engine('ejs', require('ejs-locals'));
+app.engine('ejs', require('./node/ejs-locals'));
 app.use(express.static(__dirname + '/public'));
 // favicon
 app.use(favicon(join(__dirname, 'public/ui/ico', 'favicon.ico')));
@@ -28,7 +28,7 @@ app.use(useragent.express());
 app.disable('x-powered-by');
 
 // api
-app.use('/', require('./player'));
+app.use('/', require('./api/player'));
 
 app.listen(kPort, async function() {
 	console.log('Express server listening on port', kPort);

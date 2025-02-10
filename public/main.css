@@ -1,0 +1,16 @@
+@import 'editor/player/page.css';
+
+input[type="checkbox"].checkbox.state {
+	&:not(:checked) {
+		background-color: #fff3;
+	}
+}
+
+input[type="checkbox"][name="mute"].fa:checked {
+	color: var(--red);
+	&:before { content: '\f6a9'; } /* fa-volume-xmark */
+}
+
+input[type=range] {
+	border: 1px solid #4d90fe77;
+}

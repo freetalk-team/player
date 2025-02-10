@@ -7,9 +7,13 @@ const path = require('node:path')
 const prod = process.env.NODE_ENV == 'production';
 const root = app.isPackaged ? path.join('resources', 'app.asar') : '';
 
+var win;
+
 var kViewsPath = path.resolve('views');
 var kPublicPath = path.resolve('public');
-var kEntryPoint = '/app.prod.ejs';
+var kEntryPoint = '/app.ejs';
+
+app.setName('Music Player');
 
 // console.log('NODE Environment:', process.env.NODE_ENV);
 // console.log('ELECTRON Environment:', process.env.ELECTRON_ENV);
@@ -22,6 +26,22 @@ if (app.isPackaged) {
 	kEntryPoint = '/app.prod.ejs';
 }
 
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+	app.quit();
+	return;
+}
+
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+	// Someone tried to run a second instance, we should focus our window.
+	if (win) {
+		if (win.isMinimized()) 
+			win.restore()
+
+		win.focus()
+	}
+})
 
 async function createWindow () {
 
@@ -30,7 +50,7 @@ async function createWindow () {
 
 	const icon = path.resolve(root, 'public', 'ui', 'png', 'app-icon.png');
 
-	console.log('ICON', icon);
+	// console.log('ICON', icon);
 	
 	const stateKeeper = await windowStateKeeper('main');
 
@@ -79,6 +99,8 @@ async function createWindow () {
 
 	// Open the DevTools.
 	// mainWindow.webContents.openDevTools()
+
+	win = mainWindow;
 }
 
 // This method will be called when Electron has finished

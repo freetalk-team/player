@@ -3,41 +3,47 @@ import { PlayerPage  } from "./page.js";
 
 App.Editor.register(PlayerPage);
 
-App.Commands.register('add-new-playlist', (recent=app.player.recent,album=null) => {
+App.Commands.register('add-new-playlist', async (tracks, info={}) => {
 
-	console.log('# Creating playlist:', recent);
+	//console.log('# Creating playlist:', recent);
 
 	const params = {
-		icon: '\uf550' 
+		icon: 'playlist' 
 		, desc: 'Create a new playlist'
 		, reload: true
-		, onAdd(playlist) {
-			// console.log('On new playlist', data);
+		, async onAdd(data) {
 
-			playlist.name = playlist.display.toLowerCase();
-			playlist.id = playlist.name.hashCode().toString();
+			Object.assign(info, data);
 
-			const tracks = recent.filter(i => !playlist.tracks.includes(i.id));
+			info.name = info.display.toLowerCase();
+			info.id = info.name.hashHex();
+			info.type = info.type || 'playlist;'
 
-			for (const i of tracks) {
-				i.filename = i.file.name;
-				i.size = i.file.size;
+			app.editor.toggleLoading();
 
-				delete i.file;
+			try {
+
+				await app.player.createPlaylist(info);
+			}
+			finally {
+				app.editor.toggleLoading();
 			}
 
-			playlist.tracks = tracks;
-
-			app.add('playlist', playlist, 'new');
+			app.openEditor('player', 'playlist', info.id);
 		}
 	};
 
-	params.info = {
-		tracks: recent
-	};
+	if (tracks) {
+		tracks = await app.player.getTracks(tracks);
+	}
+	else {
+		tracks = app.player.recent;
+	}
 
-	if (album)
-		params.display = album;
+	info.tracks = tracks;
+	info.display = info.album || '';
+
+	params.info = info;
 
 	app.openEditor('add', 'new', 'playlist', params);
 });
@@ -53,12 +59,12 @@ App.Commands.register('player-import-files', async () => {
 			excludeAcceptAllOption: true,
 			types: [
 				{
-				description: "Media files",
-				accept: {
-					"audio/*": ['.mp3', ".ogg", ".flac"],
-					'video/*': [".webm", '.mkv', '.avi']
-				},
-				},
+					description: "Media files",
+					accept: {
+						"audio/*": ['.mp3', ".ogg", ".flac"],
+						'video/*': [".webm", '.mkv', '.avi']
+					}
+				}
 			],
 		});
 
@@ -70,25 +76,18 @@ App.Commands.register('player-import-files', async () => {
 
 });
 
-App.Commands.register('player-play-file', id => app.player.playFile(id));
-App.Commands.register('player-queue-file', id => app.player.playFile(id, true));
-App.Commands.register('player-queue-rm', id => app.player.remove(id));
-
-App.Commands.register('player-toggle-repeat', () => app.player.toggleRepeat());
-App.Commands.register('player-toggle-shuffle', () => app.player.toggleShuffle());
-
 const Fields = AddEditor.Fields;
 
 AddEditor.register('playlist', [
-	Fields.string({ name: 'display', title: 'Name', required: true })
-	, Fields.option({
+	Fields.string({ name: 'display', title: 'Name', required: true }),
+	Fields.option({ name: 'type', options: ['playlist', 'album', 'series']}),
+	Fields.option({
 		name: 'genre'
 		, options: ['Pop', 'Rock', 'Hip Hop', 'R&B', 'Electronic', 'Country', 'Jazz', 'Classic', 'Reggae', 'Metal', 'Blues', 'Folk', 'Soul', 'Dance', 'Punk']
 	}),
 
 	Fields.list({
 		name: 'tracks'
-		// , itemClass: TrackListItem
-		, template: 'editor-player-sidebar-playlist-file'
+		, template: 'editor-player-new-playlist-file'
 	})
 ]);
