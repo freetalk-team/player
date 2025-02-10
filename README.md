@@ -1,22 +1,30 @@
-# Web Player
+# **Music Player**
 
-Free, Open Source software. Developed collaboratively by a dedicated team of developers and contributors, this software offers a range of features and functionalities to support various web projects.
+## Web-Based Music Player for All Your Media
 
-## About
+**Music Player** is a sleek, browser-based music player designed to handle all your audio needs effortlessly. With broad media format support and intuitive organization tools, Music Player lets you enjoy and manage your music library directly in Chrome — no installations required.
 
-**Web Player** is 100% free and open source, allowing users to modify the code and use it inside their software
+## **Key Features**
 
-> Part of [Web Messenger](https://github.com/freetalk-team/sipme) project
+- **Universal Media Support**  
+  Drag and drop any audio format supported by Chrome (MP3, WAV, FLAC, etc.) and start listening instantly.
 
-## Features
+- **Playlist & Album Management**  
+  Organize your music into playlists and albums, keeping your library neat and personalized.
 
-- Media Files
+- **Seamless Search**  
+  Quickly find any song in your collection with a fast and responsive search feature.
 
-  Play your media file
+- **Minimalist Interface**  
+  Enjoy a clean, distraction-free player that focuses on what matters most — your music.
 
-- Playlist and albums
+- **Always Accessible**  
+  Since Music Player runs in your browser, your music follows you wherever you go.
 
-  Organize your media files
+---
+
+**Music Player** makes managing and enjoying your music library simple, fast, and intuitive — right from your web browser.
+
 
 ## Installation
 
@@ -28,7 +36,7 @@ npm install
 
 ## Usage
 
-**Web Player** can be used as standalone Desktop application or can be opened as web page inside browser
+**Music Player** can be used as standalone Desktop application or can be opened as web page inside browser
 
 * Start as Desktop application
 
@@ -44,19 +52,13 @@ npm run server
 
 [Open in browser](http://127.0.0.1:3010)
 
-![details](/public/ui/screenshot/player.jpg)
+## Demo
 
-## Contributing
-
-We welcome contributions from the community! If you'd like to contribute to **Web Messenger**, please follow these guidelines:
-- Fork the repository
-- Create a new branch
-- Make your changes
-- Submit a pull request
+[Open Player](https://www.sipme.io/player)
 
 ## License
 
-**Web Player** is licensed under the Public license
+**Music Player** is licensed under the Public license
 
 ## Acknowledgements
 
